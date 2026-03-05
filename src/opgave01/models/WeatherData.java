@@ -1,20 +1,43 @@
 package opgave01.models;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
-public class WeatherData {
-    Random random = new Random();
-    CurrentConditionsDisplay currentConditionsDisplay = new CurrentConditionsDisplay();
-    StatisticsDisplay statisticsDisplay = new StatisticsDisplay();
-    ForeCastDisplay foreCastDisplay = new ForeCastDisplay();
+public class WeatherData implements WeatherSubject {
+    private Random random = new Random();
+
+    private float temp;
+    private float humidity;
+    private float pressure;
+
+    private List<WeatherObserver> observers = new ArrayList<>();
 
     public void measurementsChanged() {
-        float temp = getTemperature();
-        float humidity = getHumidity();
-        float pressure = getPressure();
+        notifyWeatherObserver();
+    }
 
-        currentConditionsDisplay.update(temp, humidity, pressure);
-        statisticsDisplay.update(temp, humidity, pressure);
+    public void setMeasurements(){
+        temp = getTemperature();
+        humidity = getHumidity();
+        pressure = getPressure();
+        measurementsChanged();
+    }
+
+    public void registrerWeatherObserver(WeatherObserver weatherObserver) {
+        if (!observers.contains(weatherObserver)) observers.add(weatherObserver);
+    }
+
+    @Override
+    public void removeWeatherObserver(WeatherObserver observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void notifyWeatherObserver() {
+        for (WeatherObserver observer : observers) {
+            observer.update(temp, humidity, pressure);
+        }
     }
 
     private float getTemperature() {
